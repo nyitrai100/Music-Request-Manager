@@ -1,0 +1,68 @@
+@page "/"
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@using MusicApp.Components.Pages.Auth
+@using MusicApp.Components.Layout
+
+<div class="index-page">
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <NavMenu UserName="@context.User.Identity?.Name"/>
+            <Admin/>
+            <Footer></Footer>
+        </Authorized>
+    </AuthorizeView>
+    <AuthorizeView Roles="User">
+        <Authorized>
+            <NavMenu UserName="@context.User.Identity?.Name"/>
+            <User/>
+            <Footer></Footer>
+        </Authorized>
+    </AuthorizeView>
+
+    <AuthorizeView Roles="DJ">
+        <Authorized>
+            <NavMenu UserName="@context.User.Identity?.Name"/>
+            <Dj/>
+            <Footer></Footer>
+        </Authorized>
+    </AuthorizeView>
+    
+    <AuthorizeView>
+        <NotAuthorized>
+
+            <div class="container index-container">
+                <div class="index-card">
+                    <h2 class="index-title mb-4">
+                        Welcome to <span>MusicHub</span>
+                    </h2>
+
+                    <div class="d-flex flex-column align-items-center mb-4">
+                        <Authentication />
+                    </div>
+
+                    <p class="index-lead">
+                        🎵 <strong>MusicHub</strong> is your ultimate party companion.<br />
+                        Users can send song requests directly to the DJ, while DJs
+                        accept or reject requests in real time to keep the vibe alive.
+                    </p>
+
+                    <p class="index-lead mt-3">
+                        📊 DJs can track past performances with beautiful charts —
+                        bar charts, pie charts, and timelines showing what was requested
+                        and played in each club.
+                        Plan your next set like a pro.
+                    </p>
+
+                </div>
+            </div>
+           <Footer></Footer>
+        </NotAuthorized>
+
+        <Authorizing>
+            <div class="index-auth-loading">
+                <span>Loading authentication state...</span>
+            </div>
+        </Authorizing>
+    </AuthorizeView>
+</div>

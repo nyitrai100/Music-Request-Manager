@@ -1,0 +1,310 @@
+@rendermode InteractiveServer
+@using MusicApp.Components.Pages.Auth
+@using MusicApp.Components.Pages.Performances
+@using MusicApp.Components.Pages.Graphs
+@using MusicApp.Components.Pages.Errors
+@using MusicApp.Components.Pages.Shared
+@using MusicApp.Components.Pages.AdminClubs
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+@if (IsLoading)
+{
+    <Loading />
+}
+else
+{
+    <div class="admin-page">
+        <div class="admin-section">
+            <h2>Platform Statistics</h2>
+
+            <div class="admin-flex-center">
+                <select class="form-select admin-select"
+                        @onchange="OnDiagramChanged">
+                    <option value="">Select</option>
+                    <option value="all">All Clubs</option>
+                    @foreach (var club in Clubs ?? [])
+                    {
+                        <option value="@club.Id">
+                            @club.Location - @club.ClubName
+                        </option>
+                    }
+                </select>
+
+                @if (DiagramData != null && DiagramData.Any())
+                {
+                    <h4>Statistics about @_selectedClubName</h4>
+                    <SongCharts @key="_diagramKey" DiagramData="DiagramData" />
+                }
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <div class="admin-flex-between">
+                <h3>Registered Users</h3>
+                <button class="btn btn-primary" @onclick="OpenRegisterDialog">
+                    Add new user
+                </button>
+            </div>
+            
+            <div class="table-responsive mt-3">
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>UserName</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in PagedUsers)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            @onclick="() => OpenEditUserDialog(user)">
+                                        Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    @if (user.Role != "Admin")
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => DeleteUser(user.Id)">
+                                            Delete
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                
+                @if (TotalUserPages > 1)
+                {
+                    <nav class="d-flex justify-content-center mt-3">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(CurrentUserPage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangeUserPage(CurrentUserPage - 1)">‹</button>
+                            </li>
+            
+                            @for (int i = 1; i <= TotalUserPages; i++)
+                            {
+                                <li class="page-item @(i == CurrentUserPage ? "active" : "")">
+                                    @{
+                                        var i1 = i;
+                                    }
+                                    <button class="page-link" @onclick="() => ChangeUserPage(i1)">@i</button>
+                                </li>
+                            }
+            
+                            <li class="page-item @(CurrentUserPage == TotalUserPages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangeUserPage(CurrentUserPage + 1)">›</button>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <div class="admin-flex-between">
+                <h3>DJ Performances</h3>
+                <button class="btn btn-primary" @onclick="OpenNewPerformanceDialog">
+                    Add new performance
+                </button>
+            </div>
+            
+            <div class="table-responsive mt-3">
+                <table class="table table-dark table-striped">
+                    <thead>
+                    <tr>
+                        <th>DJ</th>
+                        <th>Email</th>
+                        <th>Club</th>
+                        <th>Location</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var djSet in PagedPerformances)
+                    {
+                        <tr>
+                            <td>@djSet.Dj?.User?.UserName</td>
+                            <td>@djSet.Dj?.User?.Email</td>
+                            <td>@djSet.Club?.ClubName</td>
+                            <td>@djSet.Club?.Location</td>
+                            <td>@djSet.PerformanceTimeStarts</td>
+                            <td>@djSet.PerformanceTimeEnds</td>
+                            <td>
+                                @if (djSet.PerformanceTimeStarts >= DateTime.Now.AddDays(-1))
+                                {
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => OpenEditPerformanceDialog(djSet)">
+                                        Edit
+                                    </button>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="() => DeletePerformance(djSet.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                
+                @if (TotalPerformancePages > 1)
+                {
+                    <nav class="d-flex justify-content-center mt-3">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(CurrentPerformancePage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePerformancePage(CurrentPerformancePage - 1)">‹</button>
+                            </li>
+            
+                            @for (int i = 1; i <= TotalPerformancePages; i++)
+                            {
+                                <li class="page-item @(i == CurrentPerformancePage ? "active" : "")">
+                                    @{
+                                        var i1 = i;
+                                    }
+                                    <button class="page-link" @onclick="() => ChangePerformancePage(i1)">@i</button>
+                                </li>
+                            }
+            
+                            <li class="page-item @(CurrentPerformancePage == TotalPerformancePages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => ChangePerformancePage(CurrentPerformancePage + 1)">›</button>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <div class="admin-flex-between">
+                <h3>Clubs</h3>
+                <button class="btn btn-primary" @onclick="OpenCreateClubDialog">
+                    Add new club
+                </button>
+            </div>
+        
+            <div class="table-responsive mt-3">
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Floor</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var club in PagedClubs)
+                        {
+                            <tr>
+                                <td>@club.Id</td>
+                                <td>@club.ClubName</td>
+                                <td>@club.Location</td>
+                                <td>@club.Floor</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => OpenEditClubDialog(club)">
+                                        Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => DeleteClub(club.Id)">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+        
+                @if (TotalClubPages > 1)
+                {
+                    <nav class="d-flex justify-content-center mt-3">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(CurrentClubPage == 1 ? "disabled" : "")">
+                                <button class="page-link"
+                                        @onclick="() => ChangeClubPage(CurrentClubPage - 1)">‹</button>
+                            </li>
+        
+                            @for (int i = 1; i <= TotalClubPages; i++)
+                            {
+                                <li class="page-item @(i == CurrentClubPage ? "active" : "")">
+                                    <button class="page-link"
+                                            @onclick="() => ChangeClubPage(i)">@i</button>
+                                </li>
+                            }
+        
+                            <li class="page-item @(CurrentClubPage == TotalClubPages ? "disabled" : "")">
+                                <button class="page-link"
+                                        @onclick="() => ChangeClubPage(CurrentClubPage + 1)">›</button>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+        
+        <AppModal @bind-IsOpen="ShowRegisterDialog">
+            <div class="admin-modal">
+                  <Register/>
+            </div>
+        </AppModal>
+
+        <AppModal @bind-IsOpen="ShowEditUserDialog">
+            @if (SelectedUser != null)
+            {
+                <Edit Model="SelectedUser!" OnSaved="OnUserEdited" />
+            }
+        </AppModal>
+
+        <AppModal @bind-IsOpen="ShowNewPerformanceDialog">
+            <CreatePerformance OnSaved="OnPerformanceCreated" />
+        </AppModal>
+
+        <AppModal @bind-IsOpen="ShowEditPerformanceDialog">
+            @if (SelectedPerformance != null)
+            {
+                <EditPerformance PerformanceToEdit="SelectedPerformance"
+                                 OnSaved="ReloadPerformances" />
+            }
+        </AppModal>
+        
+        <AppModal @bind-IsOpen="ShowCreateClubDialog">
+            @if (SelectedClub != null)
+            {
+                <CreateClub Club="SelectedClub"
+                            OnSaved="OnClubSaved" />
+            }
+        </AppModal>
+        
+        <AppModal @bind-IsOpen="ShowEditClubDialog">
+            @if (SelectedClub != null)
+            {
+                <EditClub Club="SelectedClub"
+                          OnSaved="OnClubSaved" />
+            }
+        </AppModal>
+    
+    </div>
+}

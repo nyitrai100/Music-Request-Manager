@@ -1,0 +1,37 @@
+@using MusicApp.Models
+@rendermode InteractiveServer
+
+<div class="w-100 d-flex justify-content-center">
+    <div class="auth-container">
+        <div class="auth-toggle-buttons">
+            <button class="btn btn-sm w-50
+                @(CurrentAuthComponent == AuthComponentType.Login
+                    ? "btn-outline-primary active"
+                    : "btn-outline-secondary")"
+                    @onclick="() => ShowComponent(AuthComponentType.Login)">
+                Login
+            </button>
+
+            <button class="btn btn-sm w-50
+                @(CurrentAuthComponent == AuthComponentType.Register
+                    ? "btn-outline-primary active"
+                    : "btn-outline-secondary")"
+                    @onclick="() => ShowComponent(AuthComponentType.Register)">
+                Register
+            </button>
+        </div>
+        
+        <div class="auth-content">
+            @switch (CurrentAuthComponent)
+            {
+                case AuthComponentType.Login:
+                    <Login />
+                    break;
+
+                case AuthComponentType.Register:
+                    <Register />
+                    break;
+            }
+        </div>
+    </div>
+</div>

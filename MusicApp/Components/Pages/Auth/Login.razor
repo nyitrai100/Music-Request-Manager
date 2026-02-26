@@ -1,0 +1,29 @@
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using MusicApp.Models
+@inject NavigationManager Navigation
+@inject LoginModel LoginModel
+
+
+<h3 class="form-card-title text-center mt-3">Login</h3>
+@if (!string.IsNullOrEmpty(LoginModel.LoginError))
+{
+    <div class="text-danger text-center mt-2">
+        @LoginModel.LoginError
+    </div>
+}
+
+<form method="post" action="/api/auth/login">
+    <div class="d-flex justify-content-center">
+        <div class="form-card">
+            <div class="d-flex flex-column">
+                <input name="Username" placeholder="Username" class="form-control form-control-custom" required/>
+                <input name="Password" type="password" placeholder="Password" class="form-control form-control-custom" required/>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary form-button">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

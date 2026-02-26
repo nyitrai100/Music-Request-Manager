@@ -1,0 +1,32 @@
+@page "/register"
+@using MusicApp.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject RegisterModel RegisterModel
+
+<h3 class="form-card-title text-center mt-3">Register</h3>
+
+@if (!string.IsNullOrEmpty(RegisterModel.RegisterError))
+{
+    <div class="text-danger text-center mt-2">
+        @RegisterModel.RegisterError
+    </div>
+}
+
+<div class="d-flex justify-content-center">
+    <div class="d-flex flex-column form-card" style="padding:1rem;">
+        <form method="post" action="/api/auth/register">
+            <input @bind="RegisterModel.Email" name="Email" type="email" placeholder="Email address" class="form-control form-control-custom" required />
+            <select @bind="RegisterModel.Role" name="Role" class="form-control form-control-custom" required>
+                <option value="">Select role</option>
+                <option value="User">User</option>
+                <option value="DJ">DJ</option>
+            </select>
+            <input @bind="RegisterModel.Username" name="Username" type="text" placeholder="Username" class="form-control form-control-custom" required />
+            <input @bind="RegisterModel.Password" name="Password" type="password" placeholder="Password" class="form-control form-control-custom" required />
+            <input @bind="RegisterModel.ConfirmPassword" name="ConfirmPassword" type="password" placeholder="Confirm Password" class="form-control form-control-custom" required />
+
+            <button type="submit" class="btn btn-primary form-button">Register</button>
+        </form>
+    </div>
+</div>

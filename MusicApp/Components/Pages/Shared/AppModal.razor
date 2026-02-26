@@ -1,0 +1,13 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop-custom" @onclick="OnBackdropClick">
+        <div class="modal-container-custom" @onclick:stopPropagation>
+            <div class="modal-header-custom">
+                <button class="btn btn-sm btn-secondary" @onclick="Close">✕</button>
+            </div>
+            <div class="modal-body-custom">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}

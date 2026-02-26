@@ -1,0 +1,50 @@
+@using MusicApp.Models
+
+<div class="form-card">
+    <h3 class="form-card-title">
+        Edit User
+    </h3>
+
+    @if (!string.IsNullOrEmpty(Model.EditError))
+    {
+        <div class="text-danger text-center mt-2">
+            @Model.EditError
+        </div>
+    }
+
+    <form @onsubmit="HandleEdit" @onsubmit:preventDefault>
+
+        <input class="form-control form-control-custom"
+               type="email"
+               placeholder="Email"
+               @bind="Model.Email"
+               required />
+
+        <input class="form-control form-control-custom"
+               type="text"
+               placeholder="Username"
+               @bind="Model.Username"
+               required />
+
+        <select class="form-control form-control-custom" @bind="Model.Role" required>
+            <option value="">Select role</option>
+            <option value="User">User</option>
+            <option value="DJ">DJ</option>
+            <option value="Admin">Admin</option>
+        </select>
+
+        <input class="form-control form-control-custom"
+               type="password"
+               placeholder="New password (optional)"
+               @bind="Model.Password" />
+
+        <input class="form-control form-control-custom"
+               type="password"
+               placeholder="Confirm new password"
+               @bind="Model.ConfirmPassword" />
+
+        <button class="btn btn-primary form-button">
+            Save changes
+        </button>
+    </form>
+</div>

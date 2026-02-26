@@ -1,0 +1,21 @@
+@using DatabaseLayer.DbTables
+@using Blazorise.Charts
+
+<div class="chart-dashboard">
+
+    <div class="chart-card">
+        <h4 class="chart-title">Top Requested Songs</h4>
+        <BarChart TItem="double" @ref="_topSongsChart" class="chart-style" />
+    </div>
+
+    <div class="chart-card-small">
+        <h4 class="chart-title">Status Distribution</h4>
+        <PieChart TItem="int" @ref="_statusChart" class="chart-style" />
+    </div>
+
+    <div class="chart-card-full">
+        <h4 class="chart-title">Requests Over Time</h4>
+        <LineChart TItem="int" @ref="_timelineChart" class="chart-style" />
+    </div>
+
+</div>

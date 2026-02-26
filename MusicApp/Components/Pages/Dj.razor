@@ -1,0 +1,278 @@
+@using MusicApp.Components.Pages.Graphs
+@using MusicApp.Components.Pages.Errors
+
+<PageTitle>DJ Dashboard</PageTitle>
+
+@if (IsLoading)
+{
+    <Loading />
+}
+else
+{
+    <div class="dj-page">
+
+        <div class="container-fluid px-3 px-md-5 dj-container">
+            
+            <div class="mb-4 dj-future-card">
+                @if (!string.IsNullOrEmpty(FutureClubErrorMessage))
+                {
+                    <div class="alert alert-light mb-0">@FutureClubErrorMessage</div>
+                }
+                else if (FutureSongs != null && FutureSongs.Any())
+                {
+                    <h4 class="mb-1">Next Performance</h4>
+                    <div style="font-size:0.95rem;">
+                        <strong>@FutureClub - @FutureClubLocation</strong><br />
+                        @FuturePerformanceTimeStarts – @FuturePerformanceTimeEnds
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-light mb-0">
+                        You don’t have any future performances.
+                    </div>
+                }
+            </div>
+            
+            <div class="mb-5">
+                @if (!string.IsNullOrEmpty(CurrentClubErrorMessage))
+                {
+                    <div class="alert alert-primary dj-alert-blue">
+                        @CurrentClubErrorMessage
+                    </div>
+                }
+                else if (CurrentSongs != null && CurrentSongs.Any())
+                {
+                    <div class="mb-3">
+                        <h4>@CurrentClub?.Location – @CurrentClub?.ClubName</h4>
+                        <small>
+                            Performance: @CurrentPerformanceTimeStarts – @CurrentPerformanceTimeEnds
+                        </small>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-12 col-lg-6">
+                            <div class="dj-song-card">
+                                <h5 class="text-success">Accepted</h5>
+                                <table class="table table-sm table-striped table-dark mb-0">
+                                    <tbody>
+                                    @foreach (var song in PagedAcceptedSongs)
+                                    {
+                                        <tr>
+                                            <td>@song.Author</td>
+                                            <td>@song.Title</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                              @if (AcceptedTotalPages > 1)
+                                {
+                                    <nav class="d-flex justify-content-center mt-2">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item @(AcceptedCurrentPage == 1 ? "disabled" : "")">
+                                                <button class="page-link dj-pointer" @onclick="() => ChangeAcceptedPage(AcceptedCurrentPage - 1)">‹</button>
+                                            </li>
+                                            @for (int i = 1; i <= AcceptedTotalPages; i++)
+                                            {
+                                                <li class="page-item @(i == AcceptedCurrentPage ? "active" : "")">
+                                                    @{
+                                                        var i1 = i;
+                                                    }
+                                                    <button class="page-link dj-pointer" @onclick="() => ChangeAcceptedPage(i1)">@i</button>
+                                                </li>
+                                            }
+                                            <li class="page-item @(AcceptedCurrentPage == AcceptedTotalPages ? "disabled" : "")">
+                                                <button class="page-link dj-pointer" @onclick="() => ChangeAcceptedPage(AcceptedCurrentPage + 1)">›</button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="dj-song-card">
+                                <h5 class="text-danger">Rejected</h5>
+                                <table class="table table-sm table-striped table-dark mb-0">
+                                    <tbody>
+                                    @foreach (var song in PagedRejectedSongs)
+                                    {
+                                        <tr>
+                                            <td>@song.Author</td>
+                                            <td>@song.Title</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                                @if (RejectedTotalPages > 1)
+                                    {
+                                        <nav class="d-flex justify-content-center mt-2">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <li class="page-item @(RejectedCurrentPage == 1 ? "disabled" : "")">
+                                                    <button class="page-link dj-pointer" @onclick="() => ChangeRejectedPage(RejectedCurrentPage - 1)">‹</button>
+                                                </li>
+                                                @for (int i = 1; i <= RejectedTotalPages; i++)
+                                                {
+                                                    <li class="page-item @(i == RejectedCurrentPage ? "active" : "")">
+                                                        @{
+                                                            var i1 = i;
+                                                        }
+                                                        <button class="page-link dj-pointer" @onclick="() => ChangeRejectedPage(i1)">@i</button>
+                                                    </li>
+                                                }
+                                                <li class="page-item @(RejectedCurrentPage == RejectedTotalPages ? "disabled" : "")">
+                                                    <button class="page-link dj-pointer" @onclick="() => ChangeRejectedPage(RejectedCurrentPage + 1)">›</button>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 dj-song-card">
+                        <h5 class="text-primary">Pending Requests</h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-dark align-middle">
+                                <tbody>
+                                @foreach (var song in PagedPendingSongs)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@song.Author</strong><br />
+                                            <small>@song.Title</small>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-success me-2 dj-pointer"
+                                                    @onclick="() => UpdateStatus(song, 1)">
+                                                Accept
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger dj-pointer"
+                                                    @onclick="() => UpdateStatus(song, 2)">
+                                                Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                          @if (PendingTotalPages > 1)
+                            {
+                                <nav class="d-flex justify-content-center mt-3">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item @(PendingCurrentPage == 1 ? "disabled" : "")">
+                                            <button class="page-link dj-pointer" @onclick="() => ChangePendingPage(PendingCurrentPage - 1)">‹</button>
+                                        </li>
+                        
+                                        @for (int i = 1; i <= PendingTotalPages; i++)
+                                        {
+                                            <li class="page-item @(i == PendingCurrentPage ? "active" : "")">
+                                                @{
+                                                    var i1 = i;
+                                                }
+                                                <button class="page-link dj-pointer" @onclick="() => ChangePendingPage(i1)">@i</button>
+                                            </li>
+                                        }
+                        
+                                        <li class="page-item @(PendingCurrentPage == PendingTotalPages ? "disabled" : "")">
+                                            <button class="page-link dj-pointer" @onclick="() => ChangePendingPage(PendingCurrentPage + 1)">›</button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-primary dj-alert-blue">
+                        No song requests yet.
+                    </div>
+                }
+            </div>
+            
+            <div class="mt-5 dj-song-card">
+                <h4 class="mb-3">Past Requests</h4>
+
+                <select class="form-select mb-3 dj-select"
+                        @onchange="OnClubChanged">
+                    <option value="">Select Club</option>
+                    @foreach (var club in Clubs ?? [])
+                    {
+                        <option value="@club.Id">@club.Location – @club.ClubName</option>
+                    }
+                </select>
+
+                @if (SelectedClub != null)
+                {
+                    @if (IsClubLoading)
+                    {
+                        <Loading />
+                    }
+                    else if (!string.IsNullOrEmpty(PastClubErrorMessage))
+                    {
+                        <div class="alert alert-primary dj-alert-blue">
+                            @PastClubErrorMessage
+                        </div>
+                    }
+                    else if (PastSongs != null && PastSongs.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-dark">
+                                <tbody>
+                                @foreach (var song in PagedPastSongs)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@song.Author</strong><br />
+                                            <small>@song.Title</small>
+                                        </td>
+                                        <td>@song.Status?.Name</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                            @if (PastTotalPages > 1)
+                            {
+                                <nav class="d-flex justify-content-center mt-3">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item @(PastCurrentPage == 1 ? "disabled" : "")">
+                                            <button class="page-link dj-pointer" @onclick="() => ChangePastPage(PastCurrentPage - 1)">‹</button>
+                                        </li>
+                                        @for (int i = 1; i <= PastTotalPages; i++)
+                                        {
+                                            <li class="page-item @(i == PastCurrentPage ? "active" : "")">
+                                                @{
+                                                    var i1 = i;
+                                                }
+                                                <button class="page-link dj-pointer" @onclick="() => ChangePastPage(i1)">@i</button>
+                                            </li>
+                                        }
+                                        <li class="page-item @(PastCurrentPage == PastTotalPages ? "disabled" : "")">
+                                            <button class="page-link dj-pointer" @onclick="() => ChangePastPage(PastCurrentPage + 1)">›</button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
+                        </div>
+
+                        @if (DiagramData != null && DiagramData.Any())
+                        {
+                            <div class="mt-4">
+                                <h5>Statistics</h5>
+                                <SongCharts DiagramData="DiagramData" />
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-primary dj-alert-blue">
+                            No past requests for this club.
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

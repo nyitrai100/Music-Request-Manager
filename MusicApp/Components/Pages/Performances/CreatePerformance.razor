@@ -1,0 +1,56 @@
+@using MusicApp.Models
+@using DatabaseLayer.DbTables
+
+<div class="performance-form-container">
+    <h3 class="performance-form-title">
+        New Performance
+    </h3>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-danger">
+            @_error
+        </div>
+    }
+
+    <form @onsubmit="HandleSubmit" @onsubmit:preventDefault>
+
+        <select class="form-control performance-form-select"
+                @bind="_model.DjId"
+                required>
+            <option value="">Select DJ</option>
+            @foreach (var dj in _model.Dj)
+            {
+                <option value="@dj.Id">
+                    @dj.User!.UserName
+                </option>
+            }
+        </select>
+      
+        <select class="form-control performance-form-select"
+                @bind="_model.ClubId"
+                required>
+            <option value="">Select Club</option>
+            @foreach (var club in _model.Clubs)
+            {
+                <option value="@club.Id">
+                    @club.ClubName - @club.Location
+                </option>
+            }
+        </select>
+
+        <input class="form-control performance-form-input"
+               type="datetime-local"
+               @bind="_model.PerformanceTimeStarts"
+               required />
+
+        <input class="form-control performance-form-input"
+               type="datetime-local"
+               @bind="_model.PerformanceTimeEnds"
+               required />
+
+        <button class="btn btn-primary performance-form-button">
+            Create
+        </button>
+    </form>
+</div>
