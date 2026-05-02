@@ -22,7 +22,7 @@ public class DjService
 
             var clubs = await GetAllClubs();
             clubs = clubs.ToList();
-            
+             
             foreach (var song in songs)
             {
                 song.Club = clubs.FirstOrDefault(c => c.Id == song.ClubId);

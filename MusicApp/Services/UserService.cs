@@ -36,7 +36,7 @@ public class UserService
         if(djSet == null)
             return;
         
-        var newSong = new { UserId = userId, ClubId = clubId, Author = author, Title = title, RequestedTime = DateTime.UtcNow, StatusId = 3, DjSetId= djSet.Id };
+        var newSong = new { UserId = userId, ClubId = clubId, Author = author, Title = title, RequestedTime = DateTime.Now, StatusId = 3, DjSetId= djSet.Id };
         var response = await _http.PostAsJsonAsync("api/user/songs", newSong);
         response.EnsureSuccessStatusCode();
     }
